@@ -12,7 +12,7 @@ transactionsRouter.get('/', async (request, response) => {
 });
 
 transactionsRouter.post('/', async (request, response) => {
-  const { title, value, type, category_id } = request.body;
+  const { title, value, type, category } = request.body;
 
   try {
     const createTransaction = new CreateTransactionService();
@@ -21,7 +21,7 @@ transactionsRouter.post('/', async (request, response) => {
       title,
       value,
       type,
-      category_id,
+      category,
     });
     return response.json(transaction);
   } catch (error) {
