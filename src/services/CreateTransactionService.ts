@@ -1,6 +1,7 @@
 /* eslint-disable no-constant-condition */
-// import AppError from '../errors/AppError';
-import { getRepository } from 'typeorm';
+
+import { getRepository, getCustomRepository } from 'typeorm';
+import TransactionRepository from '../repositories/TransactionsRepository';
 import Transaction from '../models/Transaction';
 import Category from '../models/Category';
 
@@ -20,11 +21,17 @@ class CreateTransactionService {
     type,
     category,
   }: Request): Promise<Transaction> {
-    const transactionsRepository = getRepository(Transaction);
+    const transactionsRepository = getCustomRepository(TransactionRepository);
     const categoriesRepository = getRepository(Category);
 
     if (type !== 'income' && type !== 'outcome') {
       throw new AppError('Invalid transaction type', 401);
+    }
+
+    const balance = await transactionsRepository.getBalance();
+
+    if (type === 'outcome' && value > balance.total) {
+      throw new AppError('Insuficient funds!', 400);
     }
 
     const categoryExists = await categoriesRepository.findOne({
